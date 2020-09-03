@@ -77,7 +77,7 @@ d %>%
     ## #   alternative <chr>
 
 Great answer, basically nesting the data for each category, spreading
-the categories to distinct columns and using `map2` to run a paired
+the categories to distinct columns and using `map2` to run a two-sample
 t-test.
 
 ### Using ‘real’ survey data
