@@ -10,15 +10,15 @@ we reject the null hypothesis that they’re from the same population and
 the difference is 0).
 
 After learning SPSS in my undergrad I found R’s iterating ability
-amazing. When the time came and I had to analyze some of my pilot survey
-data I wanted to test difference between two groups across many
-variables. Knowing something like this is possible in R, I came across
-this exact question in the [rstudio community
+amazing. When the time came and I had to analyze some of my survey data
+I wanted to test difference between two groups across many variables.
+Knowing something like this is possible in R, I came across this exact
+question in the [rstudio community
 website](https://community.rstudio.com/t/use-dplyr-to-do-grouped-t-tests-and-get-number-of-observations-simultanously/23561)
 where [Tyler Bradley](https://community.rstudio.com/u/tbradley) provided
 an elegant solution.
 
-### Simulated data
+## Simulated data
 
 Let’s see his solution and then see some minor revisions I adopted for a
 ‘real world case’ (A simulated pilot survey).
@@ -80,7 +80,7 @@ Great answer, basically nesting the data for each category, spreading
 the categories to distinct columns and using `map2` to run a two-sample
 t-test.
 
-### Using ‘real’ survey data
+## Using ‘real’ survey data
 
 My data required only minor adaptations, but let’s try it with
 additional simulated data too:
