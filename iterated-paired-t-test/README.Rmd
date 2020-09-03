@@ -1,0 +1,107 @@
+---
+title: "Iterated two-sample t-test"
+date: "9/3/2020"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+In a [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test) we can test whether our sample's statistic is significantly different from the population, and whether two groups' means significantly differ (That is, we reject the null hypothesis that they're from the same population and the difference is 0).  
+
+After learning SPSS in my undergrad I found R's iterating ability amazing. When the time came and I had to analyze some of my pilot survey data I wanted to test difference between two groups across many variables. Knowing something like this is possible in R, I came across this exact question in the [rstudio community website](https://community.rstudio.com/t/use-dplyr-to-do-grouped-t-tests-and-get-number-of-observations-simultanously/23561) where [Tyler Bradley](https://community.rstudio.com/u/tbradley) provided an elegant solution. 
+
+### Simulated data
+
+Let's see his solution and then see some minor revisions I adopted for a 'real world case' (A simulated pilot survey).
+
+```{r}
+library('tidyverse')
+library('broom')
+
+set.seed(354654)
+d = tibble(value = rnorm(100),
+           category = sample(1:5, replace = TRUE, 100),
+           group = sample(c('A', 'B'), replace = TRUE, 100)) %>% 
+  arrange(category)
+
+d
+
+d %>% 
+  group_by(category, group) %>% 
+  nest() %>% 
+  spread(key = group, value = data) %>% 
+  mutate(
+    t_test = map2(A, B, ~{t.test(.x$value, .y$value) %>% tidy()}),
+    A = map(A, nrow),
+    B = map(B, nrow)
+  ) %>% 
+  unnest()
+```
+
+Great answer, basically nesting the data for each category, spreading the categories to distinct columns and using `map2` to run a paired t-test. 
+
+### Using 'real' survey data
+
+My data required only minor adaptations, but let's try it with additional simulated data too:
+
+```{r echo=FALSE}
+d = tibble(response1 = rnorm(100),
+           response2 = rnorm(100),
+           response3 = rnorm(100),
+           response4 = rnorm(100),
+           group = sample(c('A', 'B'), replace = TRUE, 100))
+
+d[1:3,2] <- NA
+d[5,2:4] <- NA
+
+d
+```
+
+This better represents a 'wide' survey response, with several values being NA. Let's first prepare our data:
+
+```{r echo=FALSE}
+d_t_test <- d %>% 
+  # If you only want to retain numeric columns
+  select(group,where(is.numeric)) %>%  
+  # Convert to long format
+  pivot_longer(-group, names_to = "variable_long") %>% 
+  # Filter if your categorical variable is NA
+  filter(!is.na(group))
+```
+
+And now nest all the variables in two different columns for each group, similar to his approach:
+
+```{r echo=FALSE}
+d_t_test <- d_t_test %>% 
+  group_by(variable_long, group ) %>% 
+  nest() %>% 
+  pivot_wider(names_from = group, values_from = data) 
+
+d_t_test
+```
+
+And finally run the test:
+
+```{r}
+d_t_test %>% 
+  mutate(
+    t_test = map2(A, B , ~{t.test(.x$value, .y$value) %>% tidy()}),
+    n_group_A = map_dbl(`A`, ~ sum(!is.na(.x))),
+    n_group_B = map_dbl(`B`, ~ sum(!is.na(.x)))
+  ) %>% 
+  unnest(t_test) %>% 
+  mutate(CI = paste0("[", round(conf.low,2), ", ",round(conf.high,2), "]")) %>% 
+  select(Variable = variable_long, Estimate = estimate, Male = estimate1, `Female and other` = estimate2, Statistic = statistic, CI, p.value, n_group_A, n_group_B) %>% 
+  arrange(p.value) %>% 
+  knitr::kable()
+```
+
+And Voila, along with some tidying and arranging our p-values. I did have to provide columns within the `unnest`, and running only a `map` argument and not `map_dbl` returned a list value as a cell so I changed it the `map_dbl`.   
+
+Another thing to note is the use of `~ sum(!is.na(.x))` instead of nrow. This is because the nrow will count `NA` as valid values, and we want only values run in the t-test analysis.  
+
+That's the short tip, hopefully it helped someone else! And thanks to Tyler!
