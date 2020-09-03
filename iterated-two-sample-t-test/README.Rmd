@@ -95,13 +95,13 @@ d_t_test %>%
   ) %>% 
   unnest(t_test) %>% 
   mutate(CI = paste0("[", round(conf.low,2), ", ",round(conf.high,2), "]")) %>% 
-  select(Variable = variable_long, Estimate = estimate, Male = estimate1, `Female and other` = estimate2, Statistic = statistic, CI, p.value, n_group_A, n_group_B) %>% 
+  select(Variable = variable_long, Estimate = estimate, `Group A` = estimate1, `Group B` = estimate2, Statistic = statistic, CI, p.value, n_group_A, n_group_B) %>% 
   arrange(p.value) %>% 
   knitr::kable()
 ```
 
 And Voila, along with some tidying and arranging our p-values. I did have to provide columns within the `unnest`, and running only a `map` argument and not `map_dbl` returned a list value as a cell so I changed it the `map_dbl`.   
 
-Another thing to note is the use of `~ sum(!is.na(.x))` instead of nrow. This is because the nrow will count `NA` as valid values, and we want only values run in the t-test analysis.  
+Another thing to note is the use of `~ sum(!is.na(.x))` instead of `nrow`. This is because the nrow will count `NA` as valid values, and we want only values run in the t-test analysis.  
 
 That's the short tip, hopefully it helped someone else! And thanks to Tyler!

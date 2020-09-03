@@ -126,26 +126,26 @@ d_t_test %>%
   ) %>% 
   unnest(t_test) %>% 
   mutate(CI = paste0("[", round(conf.low,2), ", ",round(conf.high,2), "]")) %>% 
-  select(Variable = variable_long, Estimate = estimate, Male = estimate1, `Female and other` = estimate2, Statistic = statistic, CI, p.value, n_group_A, n_group_B) %>% 
+  select(Variable = variable_long, Estimate = estimate, `Group A` = estimate1, `Group B` = estimate2, Statistic = statistic, CI, p.value, n_group_A, n_group_B) %>% 
   arrange(p.value) %>% 
   knitr::kable()
 ```
 
-| Variable  |    Estimate |        Male | Female and other |   Statistic | CI              |   p.value | n\_group\_A | n\_group\_B |
-| :-------- | ----------: | ----------: | ---------------: | ----------: | :-------------- | --------: | ----------: | ----------: |
-| response1 | \-0.2696169 | \-0.1198207 |        0.1497962 | \-1.3514395 | \[-0.67, 0.13\] | 0.1796673 |          49 |          51 |
-| response3 | \-0.0760155 | \-0.0672744 |        0.0087411 | \-0.3632480 | \[-0.49, 0.34\] | 0.7172290 |          49 |          50 |
-| response2 |   0.0355152 | \-0.0732265 |      \-0.1087417 |   0.1713817 | \[-0.38, 0.45\] | 0.8642921 |          48 |          48 |
-| response4 |   0.0129523 |   0.0755937 |        0.0626414 |   0.0648348 | \[-0.38, 0.41\] | 0.9484393 |          49 |          50 |
+| Variable  |    Estimate |     Group A |     Group B |   Statistic | CI              |   p.value | n\_group\_A | n\_group\_B |
+| :-------- | ----------: | ----------: | ----------: | ----------: | :-------------- | --------: | ----------: | ----------: |
+| response1 | \-0.2696169 | \-0.1198207 |   0.1497962 | \-1.3514395 | \[-0.67, 0.13\] | 0.1796673 |          49 |          51 |
+| response3 | \-0.0760155 | \-0.0672744 |   0.0087411 | \-0.3632480 | \[-0.49, 0.34\] | 0.7172290 |          49 |          50 |
+| response2 |   0.0355152 | \-0.0732265 | \-0.1087417 |   0.1713817 | \[-0.38, 0.45\] | 0.8642921 |          48 |          48 |
+| response4 |   0.0129523 |   0.0755937 |   0.0626414 |   0.0648348 | \[-0.38, 0.41\] | 0.9484393 |          49 |          50 |
 
 And Voila, along with some tidying and arranging our p-values. I did
 have to provide columns within the `unnest`, and running only a `map`
 argument and not `map_dbl` returned a list value as a cell so I changed
 it the `map_dbl`.
 
-Another thing to note is the use of `~ sum(!is.na(.x))` instead of nrow.
-This is because the nrow will count `NA` as valid values, and we want
-only values run in the t-test analysis.
+Another thing to note is the use of `~ sum(!is.na(.x))` instead of
+`nrow`. This is because the nrow will count `NA` as valid values, and we
+want only values run in the t-test analysis.
 
 That’s the short tip, hopefully it helped someone else\! And thanks to
 Tyler\!
