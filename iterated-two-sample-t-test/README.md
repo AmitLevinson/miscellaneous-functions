@@ -179,5 +179,31 @@ Another thing to note is the use of `~ sum(!is.na(.x))` instead of
 `nrow`. This is because the nrow will count `NA` as valid values, and we
 want only values run in the t-test analysis.
 
-That’s the short tip, hopefully it helped someone else\! And thanks to
-Tyler\!
+And here’s the code to save it as a table (run on a larger fabricated
+dataset):
+
+``` r
+table_print <- df_t_test %>%
+  head(20) %>% 
+  gt::gt() %>% 
+  fmt_number(
+    columns = c(2:5,7),
+    decimals = 3,
+    use_seps = FALSE
+  ) %>% 
+  tab_header(
+    title = html("<b><span style='font-family:Roboto Condensed'>Multiple two-sample t-test in R</span></b>")
+    ) %>%
+  tab_options(heading.title.font.weight = "bold") 
+
+gtsave(table_print, "table.png")
+```
+
+``` r
+knitr::include_graphics("table.png")
+```
+
+<img src="table.png" width="1125" />
+
+**That’s the short tip, hopefully it helped someone else\! And thanks to
+Tyler\!**
