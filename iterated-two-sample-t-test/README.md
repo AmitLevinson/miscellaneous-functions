@@ -85,6 +85,19 @@ t-test.
 My data required only minor adaptations, but let’s try it with
 additional simulated data too:
 
+``` r
+d = tibble(response1 = rnorm(100),
+           response2 = rnorm(100),
+           response3 = rnorm(100),
+           response4 = rnorm(100),
+           group = sample(c('A', 'B'), replace = TRUE, 100))
+
+d[1:3,2] <- NA
+d[5,2:4] <- NA
+
+d
+```
+
     ## # A tibble: 100 x 5
     ##    response1 response2 response3 response4 group
     ##        <dbl>     <dbl>     <dbl>     <dbl> <chr>
@@ -103,8 +116,27 @@ additional simulated data too:
 This better represents a ‘wide’ survey response, with several values
 being NA. Let’s first prepare our data:
 
+``` r
+d_t_test <- d %>% 
+  # If you only want to retain numeric columns
+  select(group,where(is.numeric)) %>%  
+  # Convert to long format
+  pivot_longer(-group, names_to = "variable_long") %>% 
+  # Filter if your categorical variable is NA
+  filter(!is.na(group))
+```
+
 And now nest all the variables in two different columns for each group,
 similar to his approach:
+
+``` r
+d_t_test <- d_t_test %>% 
+  group_by(variable_long, group ) %>% 
+  nest() %>% 
+  pivot_wider(names_from = group, values_from = data) 
+
+d_t_test
+```
 
     ## # A tibble: 4 x 3
     ## # Groups:   variable_long [4]
