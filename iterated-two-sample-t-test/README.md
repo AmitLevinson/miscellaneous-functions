@@ -199,11 +199,7 @@ table_print <- df_t_test %>%
 gtsave(table_print, "table.png")
 ```
 
-``` r
-knitr::include_graphics("table.png")
-```
-
-<img src="table.png" width="80%" height="60%" />
+<img src="table.png" width="80%" height="60%" style="display: block; margin: auto;" />
 
 **That’s the short tip, hopefully it helped someone else\! And thanks to
 Tyler\!**
